@@ -12,7 +12,7 @@ export class My3DViewerControl implements ComponentFramework.StandardControl<IIn
     private _intersected: THREE.Object3D | null = null;
 
     constructor() {
-        // no-op
+        // nothing here
     }
 
     public init(
@@ -23,19 +23,12 @@ export class My3DViewerControl implements ComponentFramework.StandardControl<IIn
     ): void {
         this._container = container;
 
-        // Track window size
+        // Track window size - important for code inside updateView.
         context.mode.trackContainerResize(true);
-        
-        //this._container.style.backgroundColor = "red";
-        //this._container.style.width = "100%";
-        //this._container.style.height = "100%";
-        //this._container.style.position = "relative";
 
         // Initialize Three.js renderer
         this._renderer = new THREE.WebGLRenderer({ antialias: true });
-        //this._renderer.setSize(container.clientWidth, container.clientHeight);
-        //this._renderer.setSize(context.mode.allocatedHeight, context.mode.allocatedHeight);
-        this._renderer.setClearColor(0xffffff); // Set background color to white
+        this._renderer.setClearColor(0xffffff); // Set background color to white - can set to different color to see the edges of the render window.
         this._renderer.shadowMap.enabled = true; // Enable shadow maps
         container.appendChild(this._renderer.domElement);
 
@@ -90,12 +83,10 @@ export class My3DViewerControl implements ComponentFramework.StandardControl<IIn
         animate();
     }
 
+    
+    // Change color on mouse click to check the 3D scene is interactable.
     private onMouseClick(event: MouseEvent): void {
-        // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
-        const rect = this._container.getBoundingClientRect();
-        this._mouse.x = ((event.clientX - rect.left) / this._container.clientWidth) * 2 - 1;
-        this._mouse.y = -((event.clientY - rect.top) / this._container.clientHeight) * 2 + 1;
-
+        
         // Update the raycaster with the mouse position and the camera
         this._raycaster.setFromCamera(this._mouse, this._camera);
 
@@ -120,6 +111,8 @@ export class My3DViewerControl implements ComponentFramework.StandardControl<IIn
     }
 
     public updateView(context: ComponentFramework.Context<IInputs>): void {
+        
+        // Change the render size depending on the parent container (the container that is inside the Canvas App)
         const width = context.mode.allocatedWidth;
         const height = context.mode.allocatedHeight;
 
@@ -127,10 +120,6 @@ export class My3DViewerControl implements ComponentFramework.StandardControl<IIn
         this._camera.aspect = width / height;
         this._camera.updateProjectionMatrix();
 
-        //this._container.style.overflow = "hidden";
-        //this._container.style.height = `${height}px`;
-        //this._container.style.width = `${width}px`;
-        //this._container.innerText = "DEMO TEXT";
     }
 
     public getOutputs(): IOutputs {
